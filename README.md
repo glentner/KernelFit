@@ -43,6 +43,12 @@ KernelFit1D<double> kernel_fit(x, y, bandwidth);
 std::vector<double> profile = kernel_fit.Solve(new_x);
 ```
 
+Include the header file (snippet 1). If you don't specify the desired maximum
+thread count with OpenMP (snippet 2), the *Solve()* method will choose for you.
+In the last snippet, we create the kernel object with three arguments. The first
+two, `x` and `y` are `std::vector<double>`s and the last argument should be of
+the same type but is a scalar.
+
 ![example](Figures/KernelFit1D.png "Results of KernelFit1D")
 
 **Figure** **1:** The above figure was plotting using Python and showcases the 
