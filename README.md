@@ -20,7 +20,8 @@ repository compiles and runs the test programs *TestKernelFit1D.cc* and
 *TestKernelFit2D.cc* in the *Test* directory. The figures included below 
 represent the results of those programs.
 
-**Example:**
+## Usage:
+
 After included the code in your project, you can use them similar to the
 below snippet:
 
