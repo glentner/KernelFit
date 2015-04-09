@@ -2,4 +2,4 @@
 C++ class for fitting smooth curves through one and two dimensional, 
 noisy data using a Gaussian kernel function.
 
-... code in progress
+![example](Figures/KernelFit1D.png "Results of KernelFit1D")
