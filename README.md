@@ -12,6 +12,22 @@ See the LICENSE file.
 **Dependencies:**
 STL and OpenMP
 
+The header and source file, *KernelFit.hh* and *KernelFit.cc*, respectively
+are located in the *Source* directory. The user should simply put the header
+file with the other header files for their project and compile, link the
+source file with their other source files. The *Makefile* included with this
+repository compiles and runs the test programs *TestKernelFit1D.cc* and
+*TestKernelFit2D.cc* in the *Test* directory. The figures included below 
+represent the results of those programs.
+
+**Example:**
+After included the code in your project, you can use them similar to the
+below snippet:
+
+```C++
+KernelFit1D<double> kernel_fit(x, y, bandwidth);
+std::vector<double> profile = kernel_fit.Solve(new_x);
+```
 
 
 ![example](Figures/KernelFit1D.png "Results of KernelFit1D")
