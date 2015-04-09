@@ -54,7 +54,7 @@ public:
 protected:
 	
 	T _bandwidth;
-	std::vector<T> _x, _y, _z;
+    std::vector<T> _x, _y, _z;
 
 };
 
