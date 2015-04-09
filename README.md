@@ -47,7 +47,16 @@ Include the header file (snippet 1). If you don't specify the desired maximum
 thread count with OpenMP (snippet 2), the *Solve()* method will choose for you.
 In the last snippet, we create the kernel object with three arguments. The first
 two, `x` and `y` are `std::vector<double>`s and the last argument should be of
-the same type but is a scalar.
+the same type but is a scalar. 
+
+The general approach here is described quite
+well on the [Kernel Smoother](http://en.wikipedia.org/wiki/Kernel_smoother)
+Wikipedia page. Here, `bandwidth` refers to the length scale, or explicitly,
+the standard deviation in the Gaussian. Choosing the correct bandwidth here is
+critical to getting a good fit. If your choice is too small, you'll essentially
+be drawing strait lines between the data points. If your bandwidth is too large,
+everybody will be under the Gaussian together and we'll have almost a flat line
+with a height of the average value of the data set.
 
 ![example](Figures/KernelFit1D.png "Results of KernelFit1D")
 
