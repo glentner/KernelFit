@@ -5,7 +5,9 @@ regression. These objects allow for the fitting of smooth profiles through
 noisy data. The functions that solve for the profile are 
 *embarrassingly parallel* and use OpenMP to gain large speedups.
 
-**License:** GNU General Public License, version 3. See the LICENSE file.
+**License:** 
+[GNU General Public License, version 3](https://www.gnu.org/copyleft/gpl.html). 
+See the LICENSE file.
 
 **Dependencies:**
 STL and OpenMP
