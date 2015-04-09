@@ -14,3 +14,8 @@ STL and OpenMP
 results of the TestKernelFit1D.cc program. A noisy sinc function was produced 
 with both *red* and *white* noise. The blue dashed line demonstrates the smooth 
 profile fit through the data. The red dashed line shows the analytical function.
+
+![example](Figures/KernelFit2D.png "Results of KernelFit1D")
+
+**Figure** **2:** The above figure was plotting using Python and showcases the 
+results of the TestKernelFit2D.cc program.
