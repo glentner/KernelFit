@@ -15,7 +15,7 @@
 
 #include "../KernelFit.hh"
 
-#define N     5000
+#define N     1000
 #define pi    3.141592653589793
 #define range 3.0
 #define scale 0.025
@@ -55,19 +55,21 @@ int main(){
 		z[i] += ( (2.0 * random_number() / random_number.max() - 1.0)
 			* 2.5 * scale );
 	
-	// uniform line-space over range in x
-	// std::vector<double> xx(N, 0.0);
-	// xx[0] = -(range * pi / 2.0);
-	// for (std::size_t i = 1; i < xx.size(); i++)
-	// 	xx[i] = xx[i-1] + range * pi / (double(N) - 1);
-	//
-	// // set parallelism
-	// omp_set_num_threads(2);
-	//
-	// // solve KernelFit
-	// KernelFit1D<double> profile(x, y, 0.0);
-	// profile.SetBandwidth(52.);
-	// std::vector<double> f = profile.Solve(xx);
+	// uniform line-space over range in x, y
+	std::vector<double> xx(N, 0.0), yy(N, 0.0);
+	xx[0] = yy[0]= -(range * pi / 2.0);
+	for (std::size_t i = 1; i < xx.size(); i++){
+		
+		xx[i] = xx[i-1] + range * pi / (double(N) - 1.0);
+		yy[i] = yy[i-1] + range * pi / (double(N) - 1.0);
+	}
+
+	// set parallelism
+	omp_set_num_threads(4);
+
+	// solve KernelFit
+	KernelFit2D<double> profile(x, y, z, 10.0*pi * pi*range / double(N) );
+	std::vector< std::vector<double> > f = profile.Solve(xx, yy);
 	
 	// output raw data
 	std::ofstream rawfile("Test/raw-2D.dat");
@@ -82,18 +84,36 @@ int main(){
 		return 1;
 	}
 	
+	// output lattice (xx, yy)
+	std::ofstream lattice("Test/2D-lattice.dat");
+	if (lattice){
+		
+		for (std::size_t i = 0; i < xx.size(); i++)
+			lattice << xx[i] << " " << yy[i] << std::endl;
+		
+	} else {
+		
+		std::cerr << "Failed to open 2D lattice file, 2D-lattice.dat!\n";
+		return 1;
+	}
+	
 	// output profile fit
-	// std::ofstream fitfile("Test/fit-2D.dat");
-// 	if (fitfile) {
-//
-// 		for (std::size_t i = 0; i < xx.size(); i++)
-// 			fitfile << xx[i] << " " << f[i] << std::endl;
-//
-// 	} else {
-//
-// 		std::cerr << "Failed to open output file, fit-2D.dat!\n";
-// 		return 1;
-// 	}
-//
+	std::ofstream fitfile("Test/fit-2D.dat");
+	if (fitfile) {
+
+		for (std::size_t i = 0; i < xx.size(); i++){
+			
+			for (std::size_t j = 0; j < yy.size(); j++)
+				fitfile << f[i][j] << " ";
+			
+			fitfile << std::endl;
+		}
+
+	} else {
+
+		std::cerr << "Failed to open output file, fit-2D.dat!\n";
+		return 1;
+	}
+
 	return 0;
 }

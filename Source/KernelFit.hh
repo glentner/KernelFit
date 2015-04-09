@@ -20,22 +20,17 @@ public:
 
 	KernelFit1D(){}
 	KernelFit1D(const std::vector<T> &x, const std::vector<T> &y,
-		const double bandwidth);
+		const T &bandwidth);
 	
-	T Dispersion();
+	// kernel function used by default
+	T Kernel(const T &x){return exp( -x * x / (2 * _bandwidth * _bandwidth));}
 	
-	void SetBandwidth(const double multiple);
-	
-	// kernel function is `inlined`
-	T Kernel(const T x){
-		return exp( -x * x / (2 * _bandwidth * _bandwidth));
-	}
-	
+	// solve for smooth curve through data
 	std::vector<T> Solve(const std::vector<T> &x);
 
 protected:
 	
-	double _bandwidth;
+	T _bandwidth;
 	std::vector<T> _x, _y;
 
 };
@@ -47,24 +42,42 @@ public:
 
 	KernelFit2D(){}
 	KernelFit2D(const std::vector<T> &x, const std::vector<T> &y,
-		const std::vector<T> &z, const double bandwidth);
+		const std::vector<T> &z, const T &bandwidth);
 	
-	T Dispersion();
+	// kernel function used by default
+	T Kernel(const T &r){return exp( -r * r / (2 * _bandwidth * _bandwidth));}
 	
-	void SetBandwidth(const double multiple);
-	
-	// kernel function is `inlined`
-	T Kernel(const T r){
-		return exp( -r * r / (2 * _bandwidth * _bandwidth));
-	}
-	
-	std::vector<T> Solve(const std::vector<T> &x, const std::vector<T> &y);
+	// solve for the smooth surface through the data
+	std::vector< std::vector<T> > Solve(const std::vector<T> &x, 
+		const std::vector<T> &y);
 
 protected:
 	
-	double _bandwidth;
+	T _bandwidth;
 	std::vector<T> _x, _y, _z;
 
+};
+
+// base exception class for KernelFit objects
+class KernelException : public std::exception {	
+
+public:
+	
+	explicit KernelException(const std::string& msg): _msg(msg){ }
+	virtual ~KernelException() throw() { }
+	virtual const char* what() const throw(){ return _msg.c_str(); }
+
+protected:
+
+	std::string _msg;
+};
+
+// exception thrown by KernelFit objects
+class KernelFitError : public KernelException {
+public:
+	
+	KernelFitError(const std::string& msg): KernelException(
+		" --> KernelFitError: " + msg){ }
 };
 
 #endif

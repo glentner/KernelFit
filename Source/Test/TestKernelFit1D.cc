@@ -55,8 +55,7 @@ int main(){
 	omp_set_num_threads(2);
 	
 	// solve KernelFit
-	KernelFit1D<double> profile(x, y, 0.0);
-	profile.SetBandwidth(52.);
+	KernelFit1D<double> profile(x, y, pi * pi * range / double(N));
 	std::vector<double> f = profile.Solve(xx);
 	
 	// output raw data
