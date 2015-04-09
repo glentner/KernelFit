@@ -1,5 +1,7 @@
 # KernelFit
-C++ class for fitting smooth curves through one and two dimensional, 
-noisy data using a Gaussian kernel function.
+
+C++ classes for single and multidimensional non-parametric Gaussian kernel
+regression. These objects allow for the fitting of smooth profiles through
+noisy data.
 
 ![example](Figures/KernelFit1D.png "Results of KernelFit1D")
