@@ -12,7 +12,7 @@ See the LICENSE file.
 **Dependencies:**
 STL and OpenMP
 
-**Exceptions:***
+**Exceptions:**
 The KernelFit objects will throw `KernelFitError` when given unacceptable
 inputs for the constructors.
 
