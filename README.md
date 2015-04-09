@@ -25,10 +25,22 @@ After included the code in your project, you can use them similar to the
 below snippet:
 
 ```C++
+#include <KernelFit.hh>
+```
+
+...
+
+
+```C++
+omp_set_num_threads(4);
+```
+
+...
+
+```C++
 KernelFit1D<double> kernel_fit(x, y, bandwidth);
 std::vector<double> profile = kernel_fit.Solve(new_x);
 ```
-
 
 ![example](Figures/KernelFit1D.png "Results of KernelFit1D")
 
