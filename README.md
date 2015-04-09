@@ -12,6 +12,10 @@ See the LICENSE file.
 **Dependencies:**
 STL and OpenMP
 
+**Exceptions:***
+The KernelFit objects will throw `KernelFitError` when given unacceptable
+inputs for the constructors.
+
 The header and source file, *KernelFit.hh* and *KernelFit.cc*, respectively
 are located in the *Source* directory. The user should simply put the header
 file with the other header files for their project and compile, link the
@@ -19,6 +23,11 @@ source file with their other source files. The *Makefile* included with this
 repository compiles and runs the test programs *TestKernelFit1D.cc* and
 *TestKernelFit2D.cc* in the *Test* directory. The figures included below 
 represent the results of those programs.
+
+*Notice:*
+The TestKernelFit2D.cc program took ~ 2 min to run on my MacBook Pro (Intel i5)
+using 4 threads. This program (in addition to the other test program) will be
+run automatically when `make` is executed.
 
 ## Usage:
 
