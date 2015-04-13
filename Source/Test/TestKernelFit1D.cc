@@ -55,9 +55,12 @@ int main(){
 	omp_set_num_threads(2);
 	
 	// solve KernelFit
-	KernelFit1D<double> profile(x, y, pi * pi * range / double(N));
+	KernelFit1D<double> profile(x, y, 3*pi * pi * range / double(N));
 	std::vector<double> f = profile.Solve(xx);
 	
+    // solve for standard deviation
+    std::vector<double> s = profile.StdDev(xx);
+    
 	// output raw data
 	std::ofstream rawfile("Test/raw-1D.dat");
 	if (rawfile) {
@@ -83,6 +86,19 @@ int main(){
 		std::cerr << "Failed to open output file, fit-1D.dat!\n";
 		return 1;
 	}
-	
+    
+    // output profile fit
+    std::ofstream stdev("Test/stdev-1D.dat");
+    if (stdev) {
+        
+        for (std::size_t i = 0; i < xx.size(); i++)
+            stdev << xx[i] << " " << s[i] << std::endl;
+        
+    } else {
+        
+        std::cerr << "Failed to open output file, stdev-1D.dat!\n";
+        return 1;
+    }
+    
 	return 0;
 }

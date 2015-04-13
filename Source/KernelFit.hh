@@ -23,16 +23,21 @@ public:
 		const T &bandwidth);
 	
 	// kernel function used by default
-	T Kernel(const T &x){return exp( -x * x / (2 * _bandwidth * _bandwidth));}
+	T Kernel(const T &x){return exp( -x * x / (2 * _b * _b));}
 	
 	// solve for smooth curve through data
 	std::vector<T> Solve(const std::vector<T> &x);
-
+    
+    // solve by alternative kernel function
+    std::vector<T> Solve(const std::vector<T> &x, T (*W)(T));
+    
+    // solve for estimated deviations
+    std::vector<T> StdDev(const std::vector<T> &x);
+    
 protected:
 	
-	T _bandwidth;
-	std::vector<T> _x, _y;
-
+	T _b;
+    std::vector<T> _x, _y;
 };
 
 template<class T>
@@ -45,17 +50,24 @@ public:
 		const std::vector<T> &z, const T &bandwidth);
 	
 	// kernel function used by default
-	T Kernel(const T &r){return exp( -r * r / (2 * _bandwidth * _bandwidth));}
+	T Kernel(const T &r){return exp( -r * r / (2 * _b * _b));}
 	
 	// solve for the smooth surface through the data
 	std::vector< std::vector<T> > Solve(const std::vector<T> &x, 
 		const std::vector<T> &y);
+    
+    // solve by alternative kernel function
+    std::vector< std::vector<T> > Solve(const std::vector<T> &x,
+        const std::vector<T> &y, T (*W)(T));
+    
+    // solve for estimated deviations
+    std::vector< std::vector<T> > StdDev(const std::vector<T> &x,
+         const std::vector<T> &y);
 
 protected:
 	
-	T _bandwidth;
+	T _b;
     std::vector<T> _x, _y, _z;
-
 };
 
 // base exception class for KernelFit objects

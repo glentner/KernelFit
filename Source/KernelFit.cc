@@ -32,8 +32,7 @@ KernelFit1D<T>::KernelFit1D(const std::vector<T> &x, const std::vector<T> &y,
 	
 	_x = x;
 	_y = y;
-	
-	_bandwidth = bandwidth;
+    _b = bandwidth;
 	
 }
 
@@ -44,8 +43,9 @@ std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x){
 	//
 	
 	if ( x.empty() )
-		throw KernelFitError("From KernelFit1D::Solve(), `x` was empty!");
-	
+        throw KernelFitError("From KernelFit1D::Solve(), the input vector "
+             "cannot be empty!");
+    
 	std::vector<T> f( x.size(), 0.0);
 	
 	// omp_set_num_threads() should be called prior to here!
@@ -56,15 +56,78 @@ std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x){
 		
 		for (std::size_t j = 0; j < _x.size(); j++){
 			
-			T k   = Kernel(_x[j] - x[i]);
-			f[i] += k * _y[j];
-			sum  += k;
+			T W   = Kernel(_x[j] - x[i]);
+			f[i] += W * _y[j];
+			sum  += W;
 		}
 		
 		f[i] /= sum;
 	}
-	
+    
 	return f;
+}
+
+template<class T>
+std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x, T (*W)(T)){
+    
+    //
+    // solve for the smooth profile through the data at all `x`
+    // using an alternative kernel function `W`
+    //
+    
+    if ( x.empty() )
+        throw KernelFitError("From KernelFit1D::Solve(), the input vector "
+             "cannot be empty!");
+    
+    std::vector<T> f( x.size(), 0.0);
+    
+    // omp_set_num_threads() should be called prior to here!
+    #pragma omp parallel for shared(f)
+    for (std::size_t i = 0; i <  x.size(); i++){
+        
+        T sum = 0.0;
+        
+        for (std::size_t j = 0; j < _x.size(); j++){
+            
+            T WW  = W(_x[j] - x[i]);
+            f[i] += WW * _y[j];
+            sum  += WW;
+        }
+        
+        f[i] /= sum;
+    }
+    
+    return f;
+}
+
+template<class T>
+std::vector<T> KernelFit1D<T>::StdDev(const std::vector<T> &x){
+    //
+    // Solve for the estimated standard deviation by evaluating
+    // the profile *at* the raw data points.
+    //
+    
+    if ( x.empty() )
+        throw KernelFitError("From KernelFit1D::StdDiv(), the input vector "
+             "cannot be empty!");
+    
+    // solve profile at data points
+    std::vector<T> f = Solve( _x );
+    
+    // solve variance at data points
+    std::vector<T> var(_x.size(), 0.0);
+    for (std::size_t i = 0; i < _x.size(); i++)
+        var[i] = pow(_y[i] - f[i], 2.0);
+    
+    // solve for smooth curve through variance points
+    KernelFit1D<T> kernel(_x, var, _b);
+    std::vector<T> stdev = kernel.Solve(x);
+    
+    // take sqrt for standard deviation
+    for (std::size_t i = 0; i < x.size(); i++)
+        stdev[i] = sqrt(stdev[i]);
+    
+    return stdev;
 }
 
 template<class T>
@@ -89,8 +152,7 @@ KernelFit2D<T>::KernelFit2D(const std::vector<T> &x, const std::vector<T> &y,
 	_x = x;
 	_y = y;
 	_z = z;
-	
-	_bandwidth = bandwidth;
+	_b = bandwidth;
 	
 }
 
@@ -107,7 +169,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 			"`x` and `y` were empty!");
 
 	// initialize f[x][y] to zeros with proper dimensions
-	std::vector< std::vector<T> > f( x.size(), std::vector<T>( y.size(), 0.0));
+	std::vector< std::vector<T> > f(x.size(), std::vector<T>(y.size(), 0.0));
 	
 	// omp_set_num_threads() should be called prior to here!
 	#pragma omp parallel for shared(f)
@@ -118,7 +180,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 		
 		for (std::size_t k = 0; k < _x.size(); k++){
 			
-			T sep    = sqrt( pow(x[i] - _x[k], 2.0) + pow(y[j] - _y[k], 2.0) );
+			T sep    = sqrt(pow(x[i] - _x[k], 2.0) + pow(y[j] - _y[k], 2.0));
 			T W      = Kernel(sep);
 			f[i][j] += W * _z[k];
 			sum     += W;
@@ -130,5 +192,122 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 	return f;
 }
 
+// solve by alternative kernel function
+template<class T>
+std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
+    const std::vector<T> &y, T (*W)(T)){
+    
+    //
+    // solve for the smooth surface throught the xy data using alternative
+    // kernel function `W`.
+    //
+    
+    if ( x.empty() || y.empty() )
+        throw KernelFitError("From KernelFit2D::Solve(), one or both of "
+         "`x` and `y` were empty!");
+    
+    // initialize f[x][y] to zeros with proper dimensions
+    std::vector< std::vector<T> > f( x.size(), std::vector<T>(y.size(), 0.0));
+    
+    // omp_set_num_threads() should be called prior to here!
+    #pragma omp parallel for shared(f)
+    for (std::size_t i = 0; i < x.size(); i++)
+    for (std::size_t j = 0; j < y.size(); j++){
+        
+        T sum = 0.0;
+        
+        for (std::size_t k = 0; k < _x.size(); k++){
+            
+            T sep    = sqrt(pow(x[i] - _x[k], 2.0) + pow(y[j] - _y[k], 2.0));
+            T WW     = W(sep);
+            f[i][j] += WW * _z[k];
+            sum     += WW;
+        }
+        
+        f[i][j] /= sum;
+    }
+
+    return f;
+}
+
+template<class T>
+std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
+    const std::vector<T> &y){
+   
+    //
+    // Solve for the estimated standard deviation by evaluating
+    // the profile *at* the raw data points.
+    //
+    
+    if ( x.empty() || y.empty() )
+        throw KernelFitError("From KernelFit1D::StdDev(), one or both of the "
+            "input vector were empty!");
+    
+    // initialize vector for profile *at* data points
+    std::vector<T> f(_x.size(), 0.0);
+    
+    // solve profile at data points
+    #pragma omp parallel for shared(f)
+    for (std::size_t i = 0; i < _x.size(); i++){
+        
+        T sum = 0.0;
+        
+        for (std::size_t j = 0; j < _x.size(); j++){
+            
+            T sep = sqrt( pow(_x[i] - _x[j], 2.0) + pow(_y[i] - _y[j], 2.0));
+            T W   = Kernel(sep);
+            f[i]  = W * _z[i];
+            sum  += W;
+        }
+        
+        f[i] /= sum;
+    }
+    
+    // solve for variances at data points
+    std::vector<T> var(_x.size(), 0.0);
+    for (std::size_t i = 0; i < _x.size(); i++)
+        var[i] = pow(_z[i] - f[i], 2.0);
+    
+    // solve for smooth surface through variance points
+    KernelFit2D<T> kernel(_x, _y, var, _b);
+    std::vector< std::vector<T> > stdev = kernel.Solve(x, y);
+    
+    // take sqrt for standard deviation
+    #pragma omp parallel for shared(stdev)
+    for (std::size_t i = 0; i < x.size(); i++)
+    for (std::size_t j = 0; j < y.size(); j++)
+        stdev[i][j] = sqrt(stdev[i][j]);
+    
+    return stdev;
+}
+
+// template classes
+template class KernelFit1D<float>;
+template class KernelFit2D<float>;
 template class KernelFit1D<double>;
 template class KernelFit2D<double>;
+template class KernelFit1D<long double>;
+template class KernelFit2D<long double>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -15,7 +15,8 @@
 
 #include "../KernelFit.hh"
 
-#define N     1000
+#define N     10000
+#define M     1000
 #define pi    3.141592653589793
 #define range 3.0
 #define scale 0.025
@@ -56,19 +57,19 @@ int main(){
 			* 2.5 * scale );
 	
 	// uniform line-space over range in x, y
-	std::vector<double> xx(N, 0.0), yy(N, 0.0);
+	std::vector<double> xx(M, 0.0), yy(M, 0.0);
 	xx[0] = yy[0]= -(range * pi / 2.0);
 	for (std::size_t i = 1; i < xx.size(); i++){
 		
-		xx[i] = xx[i-1] + range * pi / (double(N) - 1.0);
-		yy[i] = yy[i-1] + range * pi / (double(N) - 1.0);
+		xx[i] = xx[i-1] + range * pi / (double(M) - 1.0);
+		yy[i] = yy[i-1] + range * pi / (double(M) - 1.0);
 	}
 
 	// set parallelism
 	omp_set_num_threads(4);
 
 	// solve KernelFit
-	KernelFit2D<double> profile(x, y, z, 10.0*pi * pi*range / double(N) );
+	KernelFit2D<double> profile(x, y, z, 150.0 * pow(range*pi,2.)/double(N) );
 	std::vector< std::vector<double> > f = profile.Solve(xx, yy);
 	
 	// output raw data
