@@ -55,11 +55,11 @@ int main(){
 	omp_set_num_threads(2);
 	
 	// solve KernelFit
-	KernelFit1D<double> profile(x, y, 3*pi * pi * range / double(N));
-	std::vector<double> f = profile.Solve(xx);
+	KernelFit1D<double> kernel(x, y, 3*pi * pi * range / double(N));
+	std::vector<double> f = kernel.Solve(xx);
 	
     // solve for standard deviation
-    std::vector<double> s = profile.StdDev(xx);
+    std::vector<double> s = kernel.StdDev(xx);
     
 	// output raw data
 	std::ofstream rawfile("Test/raw-1D.dat");

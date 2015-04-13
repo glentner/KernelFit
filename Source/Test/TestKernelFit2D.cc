@@ -15,8 +15,8 @@
 
 #include "../KernelFit.hh"
 
-#define N     10000
-#define M     1000
+#define N     40000
+#define M     500
 #define pi    3.141592653589793
 #define range 3.0
 #define scale 0.025
@@ -66,11 +66,16 @@ int main(){
 	}
 
 	// set parallelism
-	omp_set_num_threads(4);
+	omp_set_num_threads(16);
 
-	// solve KernelFit
-	KernelFit2D<double> profile(x, y, z, 150.0 * pow(range*pi,2.)/double(N) );
-	std::vector< std::vector<double> > f = profile.Solve(xx, yy);
+	// solve KernelFit (bandwidth is (2*pi)*10^(R-1) / mean_number_density
+    // where R=2 is the number of dimensions of the data -- empirical dependence)
+	KernelFit2D<double> kernel(x, y, z, 2*pi*10 * pi *
+        pow(range * pi / 2.0, 2.0) / double(N) );
+	std::vector< std::vector<double> > f = kernel.Solve(xx, yy);
+    
+    // solve for the standard deviations
+    std::vector< std::vector<double> > stdev = kernel.StdDev(xx, yy);
 	
 	// output raw data
 	std::ofstream rawfile("Test/raw-2D.dat");
@@ -116,5 +121,23 @@ int main(){
 		return 1;
 	}
 
+    // output profile fit
+    std::ofstream sdout("Test/stdev-2D.dat");
+    if (sdout) {
+        
+        for (std::size_t i = 0; i < x.size(); i++){
+            
+            for (std::size_t j = 0; j < yy.size(); j++)
+                sdout << stdev[i][j] << " ";
+            
+            sdout << std::endl;
+        }
+        
+    } else {
+        
+        std::cerr << "Failed to open output file, stdev-2D.dat!\n";
+        return 1;
+    }
+    
 	return 0;
 }

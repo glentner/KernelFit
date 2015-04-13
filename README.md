@@ -48,8 +48,8 @@ omp_set_num_threads(4);
 ...
 
 ```C++
-KernelFit1D<double> kernel_fit(x, y, bandwidth);
-std::vector<double> profile = kernel_fit.Solve(new_x);
+KernelFit1D<double> kernel(x, y, bandwidth);
+std::vector<double> profile = kernel.Solve(new_x);
 ```
 
 Include the header file (snippet 1). If you don't specify the desired maximum

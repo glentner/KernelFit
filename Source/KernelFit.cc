@@ -192,7 +192,6 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 	return f;
 }
 
-// solve by alternative kernel function
 template<class T>
 std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
     const std::vector<T> &y, T (*W)(T)){
@@ -240,10 +239,10 @@ std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
     //
     
     if ( x.empty() || y.empty() )
-        throw KernelFitError("From KernelFit1D::StdDev(), one or both of the "
-            "input vector were empty!");
+        throw KernelFitError("From KernelFit2D::StdDev(), one or both of the "
+            "input vectors were empty!");
     
-    // initialize vector for profile *at* data points
+    // initialize vector for profile at data points
     std::vector<T> f(_x.size(), 0.0);
     
     // solve profile at data points
