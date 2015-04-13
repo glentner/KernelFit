@@ -4,6 +4,7 @@
 
 // This source file contains the definitions for the KernelFit objects.
 
+#include <iostream>
 #include <cmath>
 #include <vector>
 #include <algorithm>
@@ -32,7 +33,7 @@ KernelFit1D<T>::KernelFit1D(const std::vector<T> &x, const std::vector<T> &y,
 	
 	_x = x;
 	_y = y;
-    _b = bandwidth;
+    _b = bandwidth * bandwidth; // squared ahead of time
 	
 }
 
@@ -120,8 +121,8 @@ std::vector<T> KernelFit1D<T>::StdDev(const std::vector<T> &x){
         var[i] = pow(_y[i] - f[i], 2.0);
     
     // solve for smooth curve through variance points
-    KernelFit1D<T> kernel(_x, var, _b);
-    std::vector<T> stdev = kernel.Solve(x);
+    KernelFit1D<T> profile(_x, var, _b);
+    std::vector<T> stdev = profile.Solve(x);
     
     // take sqrt for standard deviation
     for (std::size_t i = 0; i < x.size(); i++)
@@ -152,7 +153,7 @@ KernelFit2D<T>::KernelFit2D(const std::vector<T> &x, const std::vector<T> &y,
 	_x = x;
 	_y = y;
 	_z = z;
-	_b = bandwidth;
+	_b = bandwidth * bandwidth; // square
 	
 }
 
@@ -180,8 +181,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 		
 		for (std::size_t k = 0; k < _x.size(); k++){
 			
-			T sep    = sqrt(pow(x[i] - _x[k], 2.0) + pow(y[j] - _y[k], 2.0));
-			T W      = Kernel(sep);
+			T W      = Kernel(x[i] - _x[k], y[j] - _y[k]);
 			f[i][j] += W * _z[k];
 			sum     += W;
 		}
@@ -194,7 +194,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 
 template<class T>
 std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
-    const std::vector<T> &y, T (*W)(T)){
+    const std::vector<T> &y, T (*W)(T, T)){
     
     //
     // solve for the smooth surface throught the xy data using alternative
@@ -217,8 +217,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
         
         for (std::size_t k = 0; k < _x.size(); k++){
             
-            T sep    = sqrt(pow(x[i] - _x[k], 2.0) + pow(y[j] - _y[k], 2.0));
-            T WW     = W(sep);
+            T WW     = W(x[i] - _x[k], y[j] - _y[k]);
             f[i][j] += WW * _z[k];
             sum     += WW;
         }
@@ -230,8 +229,8 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 }
 
 template<class T>
-std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
-    const std::vector<T> &y){
+std::vector<T> KernelFit2D<T>::StdDev(const std::vector<T> &x,
+    const std::vector<T> &y, const T &bandwidth){
    
     //
     // Solve for the estimated standard deviation by evaluating
@@ -241,6 +240,9 @@ std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
     if ( x.empty() || y.empty() )
         throw KernelFitError("From KernelFit2D::StdDev(), one or both of the "
             "input vectors were empty!");
+    
+    // change bandwidth if given
+    if (bandwidth) _b = bandwidth * bandwidth;
     
     // initialize vector for profile at data points
     std::vector<T> f(_x.size(), 0.0);
@@ -253,31 +255,30 @@ std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
         
         for (std::size_t j = 0; j < _x.size(); j++){
             
-            T sep = sqrt( pow(_x[i] - _x[j], 2.0) + pow(_y[i] - _y[j], 2.0));
-            T W   = Kernel(sep);
-            f[i]  = W * _z[i];
+            T W   = Kernel(_x[i] - _x[j], _y[i] - _y[j]);
+            f[i] += W * _z[i];
             sum  += W;
         }
         
         f[i] /= sum;
     }
     
-    // solve for variances at data points
-    std::vector<T> var(_x.size(), 0.0);
-    for (std::size_t i = 0; i < _x.size(); i++)
-        var[i] = pow(_z[i] - f[i], 2.0);
+//    // solve for variances at data points
+//    std::vector<T> var(_x.size(), 0.0);
+//    for (std::size_t i = 0; i < _x.size(); i++)
+//        var[i] = pow(_z[i] - f[i], 2.0);
+//    
+//    // solve for smooth surface through variance points
+//    KernelFit2D<T> profile(_x, _y, var, _b);
+//    std::vector< std::vector<T> > stdev = profile.Solve(x, y);
+//    
+//    // take sqrt for standard deviation
+//    #pragma omp parallel for shared(stdev)
+//    for (std::size_t i = 0; i < x.size(); i++)
+//    for (std::size_t j = 0; j < y.size(); j++)
+//        stdev[i][j] = sqrt(stdev[i][j]);
     
-    // solve for smooth surface through variance points
-    KernelFit2D<T> kernel(_x, _y, var, _b);
-    std::vector< std::vector<T> > stdev = kernel.Solve(x, y);
-    
-    // take sqrt for standard deviation
-    #pragma omp parallel for shared(stdev)
-    for (std::size_t i = 0; i < x.size(); i++)
-    for (std::size_t j = 0; j < y.size(); j++)
-        stdev[i][j] = sqrt(stdev[i][j]);
-    
-    return stdev;
+    return f;
 }
 
 // template classes

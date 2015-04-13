@@ -75,7 +75,7 @@ int main(){
 	std::vector< std::vector<double> > f = kernel.Solve(xx, yy);
     
     // solve for the standard deviations
-    std::vector< std::vector<double> > stdev = kernel.StdDev(xx, yy);
+    std::vector<double> stdev = kernel.StdDev(xx, yy, 10.0);
 	
 	// output raw data
 	std::ofstream rawfile("Test/raw-2D.dat");
@@ -127,8 +127,8 @@ int main(){
         
         for (std::size_t i = 0; i < x.size(); i++){
             
-            for (std::size_t j = 0; j < yy.size(); j++)
-                sdout << stdev[i][j] << " ";
+//            for (std::size_t j = 0; j < yy.size(); j++)
+                sdout << stdev[i] << " ";
             
             sdout << std::endl;
         }

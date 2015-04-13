@@ -23,7 +23,7 @@ public:
 		const T &bandwidth);
 	
 	// kernel function used by default
-	T Kernel(const T &x){return exp( -x * x / (2 * _b * _b));}
+	T Kernel(const T &x){return exp( -0.5 * x * x / _b );}
 	
 	// solve for smooth curve through data
 	std::vector<T> Solve(const std::vector<T> &x);
@@ -50,7 +50,7 @@ public:
 		const std::vector<T> &z, const T &bandwidth);
 	
 	// kernel function used by default
-	T Kernel(const T &r){return exp( -r * r / (2 * _b * _b));}
+	T Kernel(const T &x, const T &y){return exp( -0.5 * (x*x + y*y) / _b);}
 	
 	// solve for the smooth surface through the data
 	std::vector< std::vector<T> > Solve(const std::vector<T> &x, 
@@ -58,11 +58,11 @@ public:
     
     // solve by alternative kernel function
     std::vector< std::vector<T> > Solve(const std::vector<T> &x,
-        const std::vector<T> &y, T (*W)(T));
+        const std::vector<T> &y, T (*W)(T, T));
     
     // solve for estimated deviations
-    std::vector< std::vector<T> > StdDev(const std::vector<T> &x,
-         const std::vector<T> &y);
+    std::vector<T> StdDev(const std::vector<T> &x,
+         const std::vector<T> &y, const T &bandwidth = 0.0);
 
 protected:
 	
