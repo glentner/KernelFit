@@ -55,12 +55,12 @@ int main(){
 	omp_set_num_threads(2);
 
 	// solve KernelFit
-	double bandwidth = 3*pi * pi * range / double(N)
+	double bandwidth = 3*pi * pi * range / double(N);
 	KernelFit1D<double> kernel(x, y, bandwidth);
 	std::vector<double> f = kernel.Solve(xx);
 
     // solve for standard deviation
-	kernel.SetBandwidth(10*bandwidth)
+	kernel.SetBandwidth(2.0*bandwidth);
     std::vector<double> s = kernel.StdDev(xx);
 
 	// output raw data
