@@ -21,21 +21,21 @@ public:
 	KernelFit1D(){}
 	KernelFit1D(const std::vector<T> &x, const std::vector<T> &y,
 		const T &bandwidth);
-	
+
 	// kernel function used by default
 	T Kernel(const T &x){return exp( -0.5 * x * x / _b );}
-	
+
 	// solve for smooth curve through data
 	std::vector<T> Solve(const std::vector<T> &x);
-    
-    // solve by alternative kernel function
-    std::vector<T> Solve(const std::vector<T> &x, T (*W)(T));
-    
-    // solve for estimated deviations
-    std::vector<T> StdDev(const std::vector<T> &x);
-    
+
+  // solve by alternative kernel function
+  std::vector<T> Solve(const std::vector<T> &x, T (*W)(T));
+
+  // solve for estimated deviations
+  std::vector<T> StdDev(const std::vector<T> &x);
+
 protected:
-	
+
 	T _b;
     std::vector<T> _x, _y;
 };
@@ -48,33 +48,39 @@ public:
 	KernelFit2D(){}
 	KernelFit2D(const std::vector<T> &x, const std::vector<T> &y,
 		const std::vector<T> &z, const T &bandwidth);
-	
+
 	// kernel function used by default
-	T Kernel(const T &x, const T &y){return exp( -0.5 * (x*x + y*y) / _b);}
-	
+	T Kernel(const T &x, const T &y){
+
+		return exp( -0.5 * (x*x + y*y) / bandwidth);
+	}
+
 	// solve for the smooth surface through the data
-	std::vector< std::vector<T> > Solve(const std::vector<T> &x, 
+	std::vector< std::vector<T> > Solve(const std::vector<T> &x,
 		const std::vector<T> &y);
-    
+
     // solve by alternative kernel function
     std::vector< std::vector<T> > Solve(const std::vector<T> &x,
         const std::vector<T> &y, T (*W)(T, T));
-    
+
     // solve for estimated deviations
-    std::vector<T> StdDev(const std::vector<T> &x,
+    std::vector< std::vector<T> > StdDev(const std::vector<T> &x,
          const std::vector<T> &y, const T &bandwidth = 0.0);
 
+	// bandwdith (length scale for Gaussian Kenrel() function)
+	T bandwidth;
+
 protected:
-	
-	T _b;
-    std::vector<T> _x, _y, _z;
+
+  std::vector<T> _x, _y, _z;
+
 };
 
 // base exception class for KernelFit objects
-class KernelException : public std::exception {	
+class KernelException : public std::exception {
 
 public:
-	
+
 	explicit KernelException(const std::string& msg): _msg(msg){ }
 	virtual ~KernelException() throw() { }
 	virtual const char* what() const throw(){ return _msg.c_str(); }
@@ -87,7 +93,7 @@ protected:
 // exception thrown by KernelFit objects
 class KernelFitError : public KernelException {
 public:
-	
+
 	KernelFitError(const std::string& msg): KernelException(
 		" --> KernelFitError: " + msg){ }
 };
