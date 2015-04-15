@@ -232,7 +232,7 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 
 template<class T>
 std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
-    const std::vector<T> &y){
+	const std::vector<T> &y){
 
 	//
 	// Solve for the estimated standard deviation by evaluating
@@ -241,26 +241,26 @@ std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
 
 	if ( x.empty() || y.empty() )
 		throw KernelFitError("From KernelFit2D::StdDev(), one or both of the "
-        "input vectors were empty!");
+	    "input vectors were empty!");
 
-    // initialize vector for profile at data points
-    std::vector<T> f(_x.size(), 0.0);
+	// initialize vector for profile at data points
+	std::vector<T> f(_x.size(), 0.0);
 
-    // solve profile at data points
-    #pragma omp parallel for shared(f)
-    for (std::size_t i = 0; i < _x.size(); i++){
+	// solve profile at data points
+	#pragma omp parallel for shared(f)
+	for (std::size_t i = 0; i < _x.size(); i++){
 
-        T sum = 0.0;
+	    T sum = 0.0;
 
-        for (std::size_t j = 0; j < _x.size(); j++){
+	    for (std::size_t j = 0; j < _x.size(); j++){
 
-            T W   = Kernel(_x[i] - _x[j], _y[i] - _y[j]);
-            f[i] += W * _z[j];
-            sum  += W;
-        }
+	        T W   = Kernel(_x[i] - _x[j], _y[i] - _y[j]);
+	        f[i] += W * _z[j];
+	        sum  += W;
+	    }
 
-        f[i] /= sum;
-    }
+	    f[i] /= sum;
+	}
 
 	// solve for variances at data points
 	std::vector<T> var(_x.size(), 0.0);

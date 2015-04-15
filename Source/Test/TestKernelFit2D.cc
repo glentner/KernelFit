@@ -70,12 +70,13 @@ int main(){
 
 	// solve KernelFit (bandwidth is (2*pi)*10^(R-1) / mean_number_density
     // where R=2 is the number of dimensions of the data -- empirical dependence)
-	KernelFit2D<double> kernel(x, y, z, 2*pi*10 * pi *
-        pow(range * pi / 2.0, 2.0) / double(N) );
+	double bandwidth = 2*pi*10 * pi * pow(range * pi / 2.0, 2.0) / double(N);
+	KernelFit2D<double> kernel(x, y, z, bandwidth);
 	std::vector< std::vector<double> > f = kernel.Solve(xx, yy);
 
     // solve for the standard deviations
-    std::vector< std::vector<double> > stdev = kernel.StdDev(xx, yy, 10.0);
+	kernel.SetBandwidth(10*bandwidth)
+    std::vector< std::vector<double> > stdev = kernel.StdDev(xx, yy);
 
 	// output raw data
 	std::ofstream rawfile("Test/raw-2D.dat");
@@ -128,7 +129,7 @@ int main(){
         for (std::size_t i = 0; i < x.size(); i++){
 
            for (std::size_t j = 0; j < yy.size(); j++)
-                sdout << stdev[i] << " ";
+                sdout << stdev[i][j] << " ";
 
             sdout << std::endl;
         }

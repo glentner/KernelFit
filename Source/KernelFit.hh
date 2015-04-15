@@ -28,11 +28,11 @@ public:
 	// solve for smooth curve through data
 	std::vector<T> Solve(const std::vector<T> &x);
 
-  // solve by alternative kernel function
-  std::vector<T> Solve(const std::vector<T> &x, T (*W)(T));
+	// solve by alternative kernel function
+	std::vector<T> Solve(const std::vector<T> &x, T (*W)(T));
 
-  // solve for estimated deviations
-  std::vector<T> StdDev(const std::vector<T> &x);
+	// solve for estimated deviations
+ 	std::vector<T> StdDev(const std::vector<T> &x);
 
 	// set with function to ensure it is squared
 	void SetBandwidth(T bandwidth){ _b = bandwidth*bandwidth; }
