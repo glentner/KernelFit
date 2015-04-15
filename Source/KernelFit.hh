@@ -36,7 +36,7 @@ public:
 
 	// set with function to ensure it is squared
 	void SetBandwidth(T bandwidth){ _b = bandwidth*bandwidth; }
-	
+
 protected:
 
 	T _b;
@@ -53,10 +53,7 @@ public:
 		const std::vector<T> &z, const T &bandwidth);
 
 	// kernel function used by default
-	T Kernel(const T &x, const T &y){
-
-		return exp( -0.5 * (x*x + y*y) / bandwidth);
-	}
+	T Kernel(const T &x, const T &y){ return exp( -0.5 * (x*x + y*y) / _b); }
 
 	// solve for the smooth surface through the data
 	std::vector< std::vector<T> > Solve(const std::vector<T> &x,
@@ -68,7 +65,7 @@ public:
 
     // solve for estimated deviations
     std::vector< std::vector<T> > StdDev(const std::vector<T> &x,
-         const std::vector<T> &y, const T &bandwidth = 0.0);
+    	const std::vector<T> &y);
 
 	// set with function to ensure it is squared
 	void SetBandwidth(T bandwidth){ _b = bandwidth*bandwidth; }

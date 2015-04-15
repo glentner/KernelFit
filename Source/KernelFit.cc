@@ -232,19 +232,16 @@ std::vector< std::vector<T> > KernelFit2D<T>::Solve(const std::vector<T> &x,
 
 template<class T>
 std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
-    const std::vector<T> &y, const T &bandwidth){
+    const std::vector<T> &y){
 
-    //
-    // Solve for the estimated standard deviation by evaluating
-    // the profile *at* the raw data points.
-    //
+	//
+	// Solve for the estimated standard deviation by evaluating
+	// the profile *at* the raw data points.
+	//
 
-    if ( x.empty() || y.empty() )
-        throw KernelFitError("From KernelFit2D::StdDev(), one or both of the "
-            "input vectors were empty!");
-
-    // change bandwidth if given
-    if (bandwidth) _b = bandwidth * bandwidth;
+	if ( x.empty() || y.empty() )
+		throw KernelFitError("From KernelFit2D::StdDev(), one or both of the "
+        "input vectors were empty!");
 
     // initialize vector for profile at data points
     std::vector<T> f(_x.size(), 0.0);
@@ -265,22 +262,22 @@ std::vector< std::vector<T> > KernelFit2D<T>::StdDev(const std::vector<T> &x,
         f[i] /= sum;
     }
 
-   // solve for variances at data points
-   std::vector<T> var(_x.size(), 0.0);
-   for (std::size_t i = 0; i < _x.size(); i++)
-       var[i] = pow(_z[i] - f[i], 2.0);
+	// solve for variances at data points
+	std::vector<T> var(_x.size(), 0.0);
+	for (std::size_t i = 0; i < _x.size(); i++)
+		var[i] = pow(_z[i] - f[i], 2.0);
 
-   // solve for smooth surface through variance points
-   KernelFit2D<T> profile(_x, _y, var, _b);
-   std::vector< std::vector<T> > stdev = profile.Solve(x, y);
+	// solve for smooth surface through variance points
+	KernelFit2D<T> profile(_x, _y, var, _b);
+	std::vector< std::vector<T> > stdev = profile.Solve(x, y);
 
-   // take sqrt for standard deviation
-   #pragma omp parallel for shared(stdev)
-   for (std::size_t i = 0; i < x.size(); i++)
-   for (std::size_t j = 0; j < y.size(); j++)
-       stdev[i][j] = sqrt(stdev[i][j]);
+	// take sqrt for standard deviation
+	#pragma omp parallel for shared(stdev)
+	for (std::size_t i = 0; i < x.size(); i++)
+	for (std::size_t j = 0; j < y.size(); j++)
+		stdev[i][j] = sqrt(stdev[i][j]);
 
-    return f;
+	return stdev;
 }
 
 // template classes
