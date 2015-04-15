@@ -60,7 +60,7 @@ int main(){
 	std::vector<double> f = kernel.Solve(xx);
 
     // solve for standard deviation
-	kernel.SetBandwidth(2.0*bandwidth);
+	kernel.SetBandwidth(2.15*bandwidth);
     std::vector<double> s = kernel.StdDev(xx);
 
 	// output raw data

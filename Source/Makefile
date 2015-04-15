@@ -15,33 +15,30 @@ Test: Run1D Run2D
 	@echo
 	@echo " Test/raw-1D.dat --> x, y positions of raw data "
 	@echo " Test/fit-1D.dat --> x, y positions of fitted curve "
+	@echo " Test/std-1D.dat --> x, y positions of standard deviations"
 	@echo
 	@echo " Test/raw-2D.dat --> x, y, z positions of raw data"
-	@echo " Test/fit-2D.dat --> x, y, z positions of fitted surface"
+	@echo " Test/fit-2D.dat --> z matrix of values for fitted surface"
+	@echo " Test/std-2D.dat --> matrix of values for standard deviations"
+	@echo " Test/lattice-2D.dat --> x, y vectors for mesh-grid"
 	@echo
-		
+
 Run1D: Test1D
 	@echo
 	@echo " Running the 1D test ... "
 	@echo
-	Test/TestKernelFit1D
-	
+	@Test/TestKernelFit1D
+
 Run2D: Test2D
 	@echo
 	@echo " Running the 2D test ... "
 	@echo
-	Test/TestKernelFit2D
-	
+	@Test/TestKernelFit2D
+
 Test1D: Test/TestKernelFit1D.cc
-	@echo
-	@echo " Compiling TestKernelFit1D.cc ... "
-	@echo
 	g++ -g -o Test/TestKernelFit1D Test/TestKernelFit1D.cc KernelFit.cc \
 	 	-I${inc} ${ccflags}
-	
+
 Test2D: Test/TestKernelFit2D.cc
-	@echo
-	@echo " Compiling TestKernelFit2D.cc ... "
-	@echo
 	g++ -o Test/TestKernelFit2D Test/TestKernelFit2D.cc KernelFit.cc \
 		-I${inc} ${ccflags}
