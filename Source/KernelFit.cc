@@ -21,31 +21,32 @@ KernelFit1D<T>::KernelFit1D(const std::vector<T> &x, const std::vector<T> &y,
 
 	if ( x.empty() || y.empty() )
 		throw KernelFitError("From KernelFit1D::KernelFit1D(), "
-			"one or both input vectors are empty!");
+		"one or both input vectors are empty!");
 
 	if ( x.size() != y.size() )
 		throw KernelFitError("From KernelFit1D::KernelFit1D(), input vectors "
-			"must be equal in length!");
+		"must be equal in length!");
 
 	if ( bandwidth <= 0.0 )
 		throw KernelFitError("From KernelFit1D::KernelFit1D(), the bandwidth "
-			"must be greater than zero!");
+		"must be greater than zero!");
 
 	_x = x;
 	_y = y;
-  _b = bandwidth * bandwidth; // squared ahead of time
+	_b = bandwidth * bandwidth; // squared ahead of time
 
 }
 
 template<class T>
 std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x){
+
 	//
 	// solve for the smooth profile through the data at all `x`
 	//
 
 	if ( x.empty() )
         throw KernelFitError("From KernelFit1D::Solve(), the input vector "
-             "cannot be empty!");
+        "cannot be empty!");
 
 	std::vector<T> f( x.size(), 0.0);
 
@@ -78,7 +79,7 @@ std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x, T (*W)(T)){
 
     if ( x.empty() )
         throw KernelFitError("From KernelFit1D::Solve(), the input vector "
-             "cannot be empty!");
+        "cannot be empty!");
 
     std::vector<T> f( x.size(), 0.0);
 
@@ -103,14 +104,15 @@ std::vector<T> KernelFit1D<T>::Solve(const std::vector<T> &x, T (*W)(T)){
 
 template<class T>
 std::vector<T> KernelFit1D<T>::StdDev(const std::vector<T> &x){
-    //
+
+	//
     // Solve for the estimated standard deviation by evaluating
     // the profile *at* the raw data points.
     //
 
     if ( x.empty() )
         throw KernelFitError("From KernelFit1D::StdDiv(), the input vector "
-             "cannot be empty!");
+        "cannot be empty!");
 
     // solve profile at data points
     std::vector<T> f = Solve( _x );

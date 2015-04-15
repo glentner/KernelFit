@@ -34,6 +34,9 @@ public:
   // solve for estimated deviations
   std::vector<T> StdDev(const std::vector<T> &x);
 
+	// set with function to ensure it is squared
+	void SetBandwidth(T bandwidth){ _b = bandwidth*bandwidth; }
+	
 protected:
 
 	T _b;
@@ -67,12 +70,13 @@ public:
     std::vector< std::vector<T> > StdDev(const std::vector<T> &x,
          const std::vector<T> &y, const T &bandwidth = 0.0);
 
-	// bandwdith (length scale for Gaussian Kenrel() function)
-	T bandwidth;
+	// set with function to ensure it is squared
+	void SetBandwidth(T bandwidth){ _b = bandwidth*bandwidth; }
 
 protected:
 
-  std::vector<T> _x, _y, _z;
+	T _b;
+	std::vector<T> _x, _y, _z;
 
 };
 
